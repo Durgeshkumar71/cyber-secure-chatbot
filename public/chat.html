@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Secure ChatBot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #0a0a0a;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: #111;
+            border-right: 1px solid #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .sidebar-header h2 {
+            font-size: 14px;
+            color: #00ff41;
+            text-shadow: 0 0 8px #00ff41;
+        }
+
+        .sidebar-header p {
+            font-size: 10px;
+            color: #555;
+            margin-top: 4px;
+        }
+
+        .upload-section {
+            margin-bottom: 20px;
+        }
+
+        .upload-section label {
+            font-size: 11px;
+            color: #555;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .upload-btn {
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            border: 1px dashed #333;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .upload-btn:hover {
+            border-color: #00ff41;
+            box-shadow: 0 0 8px rgba(0,255,65,0.2);
+        }
+
+        #fileInput { display: none; }
+
+        .doc-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .doc-list h3 {
+            font-size: 11px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .doc-item {
+            padding: 8px;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            font-size: 11px;
+            color: #00ff41;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            border: 1px solid #ff4141;
+            color: #ff4141;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .logout-btn:hover {
+            background: #ff4141;
+            color: #0a0a0a;
+        }
+
+        /* Main Chat */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff41;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #00ff41;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .chat-header h3 {
+            font-size: 14px;
+            color: #00ff41;
+        }
+
+        .chat-header p {
+            font-size: 11px;
+            color: #555;
+            margin-left: auto;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 15px;
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .message.bot {
+            background: #111;
+            border: 1px solid #1a1a1a;
+            border-left: 3px solid #00ff41;
+            align-self: flex-start;
+        }
+
+        .message.user {
+            background: #0d1a0d;
+            border: 1px solid #00ff41;
+            align-self: flex-end;
+            color: #00ff41;
+        }
+
+        .message .sender {
+            font-size: 10px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .message.bot .sender { color: #00ff41; }
+
+        .chat-input {
+            padding: 15px 20px;
+            border-top: 1px solid #1a1a1a;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .chat-input input:focus {
+            border-color: #00ff41;
+        }
+
+        .send-btn {
+            padding: 12px 20px;
+            background: transparent;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            background: #00ff41;
+            color: #0a0a0a;
+        }
+
+        .upload-status {
+            font-size: 11px;
+            color: #00ff41;
+            margin-top: 8px;
+            min-height: 16px;
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #333; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>⚡ CYBER SECURE</h2>
+            <p>// Intelligence System v1.0</p>
+        </div>
+
+        <div class="upload-section">
+            <label>> UPLOAD DOCUMENT:</label>
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                [ + UPLOAD PDF/TXT ]
+            </button>
+            <input type="file" id="fileInput" accept=".pdf,.txt" onchange="uploadFile()">
+            <div class="upload-status" id="uploadStatus"></div>
+        </div>
+
+        <div class="doc-list">
+            <h3>> LOADED DOCUMENTS:</h3>
+            <div id="docList"></div>
+        </div>
+
+        <button class="logout-btn" onclick="logout()">[ LOGOUT ]</button>
+    </div>
+
+    <!-- Main Chat -->
+    <div class="main">
+        <div class="chat-header">
+            <div class="status-dot"></div>
+            <h3>CYBER SECURE CHATBOT</h3>
+            <p id="userEmail"></p>
+        </div>
+
+        <div class="messages" id="messages">
+            <div class="message bot">
+                <div class="sender">> CYBER_AI:</div>
+                Initializing secure connection... ✓<br>
+                System ready. Upload a document and ask me anything from a cybersecurity perspective.
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="> Enter query..." 
+                onkeypress="if(event.key==='Enter') sendMessage()">
+            <button class="send-btn" onclick="sendMessage()">[ SEND ]</button>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const userEmail = localStorage.getItem('user');
+
+        if (!token) window.location.href = '/';
+
+        document.getElementById('userEmail').textContent = '> ' + userEmail;
+
+        let uploadedDocs = [];
+
+        async function uploadFile() {
+            const file = document.getElementById('fileInput').files[0];
+            if (!file) return;
+
+            const status = document.getElementById('uploadStatus');
+            status.textContent = '>> Uploading...';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const res = await fetch('/api/upload', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token },
+                body: formData
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                status.textContent = '>> Loaded: ' + file.name;
+                uploadedDocs.push({ name: file.name, content: data.content });
+                
+                const docList = document.getElementById('docList');
+                const item = document.createElement('div');
+                item.className = 'doc-item';
+                item.textContent = '📄 ' + file.name;
+                docList.appendChild(item);
+            } else {
+                status.textContent = '>> Error: ' + data.error;
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const query = input.value.trim();
+            if (!query) return;
+
+            addMessage(query, 'user');
+            input.value = '';
+
+            addMessage('Analyzing threat vectors...', 'bot', true);
+
+            const context = uploadedDocs.map(d => d.content).join('\n\n');
+
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ query, context })
+            });
+
+            const data = await res.json();
+
+            // Remove loading message
+            const msgs = document.getElementById('messages');
+            msgs.removeChild(msgs.lastChild);
+
+            addMessage(data.response || data.error, 'bot');
+        }
+
+        function addMessage(text, type, loading = false) {
+            const msgs = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.innerHTML = `
+                <div class="sender">${type === 'bot' ? '> CYBER_AI:' : '> YOU:'}</div>
+                ${text}
+            `;
+            msgs.appendChild(div);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

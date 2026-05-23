@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Secure ChatBot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #0a0a0a;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #111;
+            border: 1px solid #00ff41;
+            border-radius: 8px;
+            padding: 40px;
+            width: 400px;
+            box-shadow: 0 0 20px rgba(0,255,65,0.3);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 22px;
+            color: #00ff41;
+            text-shadow: 0 0 10px #00ff41;
+        }
+
+        .logo p {
+            color: #555;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #333;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            color: #555;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #00ff41;
+            border-bottom: 2px solid #00ff41;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: #00ff41;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input:focus {
+            border-color: #00ff41;
+            box-shadow: 0 0 8px rgba(0,255,65,0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #00ff41;
+            color: #0a0a0a;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 15px;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .message.error { color: #ff4141; border: 1px solid #ff4141; }
+        .message.success { color: #00ff41; border: 1px solid #00ff41; }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>⚡ CYBER SECURE CHATBOT</h1>
+            <p>// Cybersecurity Intelligence System</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('login')">[ LOGIN ]</div>
+            <div class="tab" onclick="showTab('register')">[ REGISTER ]</div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm">
+            <div class="form-group">
+                <label>> EMAIL:</label>
+                <input type="email" id="loginEmail" placeholder="enter email...">
+            </div>
+            <div class="form-group">
+                <label>> PASSWORD:</label>
+                <input type="password" id="loginPassword" placeholder="enter password...">
+            </div>
+            <button onclick="login()">[ INITIALIZE SESSION ]</button>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" class="hidden">
+            <div class="form-group">
+                <label>> EMAIL:</label>
+                <input type="email" id="regEmail" placeholder="enter email...">
+            </div>
+            <div class="form-group">
+                <label>> PASSWORD:</label>
+                <input type="password" id="regPassword" placeholder="create password...">
+            </div>
+            <button onclick="register()">[ CREATE ACCOUNT ]</button>
+        </div>
+
+        <div id="message" class="message hidden"></div>
+    </div>
+
+    <script>
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if(tab === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+            } else {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+            }
+        }
+
+        function showMessage(msg, type) {
+            const el = document.getElementById('message');
+            el.textContent = msg;
+            el.className = `message ${type}`;
+            el.classList.remove('hidden');
+        }
+
+        async function register() {
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            
+            if(data.success) {
+                showMessage('>> Account created! Please login.', 'success');
+            } else {
+                showMessage('>> Error: ' + data.error, 'error');
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            
+            if(data.success) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', data.user.email);
+                window.location.href = '/chat.html';
+            } else {
+                showMessage('>> Error: ' + data.error, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
